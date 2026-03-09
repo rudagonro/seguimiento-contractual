@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard – Cuentas por Pagar 2025</title>
+<style>
+:root{
+  --azul:#1f4e79; --azul2:#2e75b6; --gris:#f4f6f8; --borde:#e6e6e6;
+  --verde:#2e7d32; --amarillo:#ffc000; --rojo:#c00000; --naranja:#c97a1c;
+  --texto:#1a1a1a; --muted:#5f6b76;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:var(--gris);color:var(--texto)}
+header{background:var(--azul);color:#fff;padding:16px 14px}
+.header-row{max-width:1280px;margin:0 auto;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+header h1{margin:0;font-size:18px;text-transform:uppercase;letter-spacing:.35px}
+header .sub{margin-top:6px;font-size:13px;opacity:.95}
+.nav{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.nav a,.nav button{color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.35);padding:8px 10px;border-radius:10px;font-size:13px;background:transparent;cursor:pointer}
+.nav a:hover,.nav button:hover{background:rgba(255,255,255,.12)}
+.container{max-width:1280px;margin:16px auto;padding:0 14px 16px}
+.top,.toolbar,.section-title{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.top,.toolbar{margin:10px 0 12px}
+.badge,.pill,.tag{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;border:1px solid var(--borde);background:#fff}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{padding:8px 10px;font-size:13px;cursor:pointer;user-select:none}
+.pill.active{border-color:var(--azul);box-shadow:0 0 0 2px rgba(31,78,121,.12)}
+.search{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search input,.search select{padding:10px 12px;border:1px solid var(--borde);border-radius:10px;background:#fff;min-height:40px}
+.search input{min-width:260px;max-width:72vw}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+.card{background:#fff;border:1px solid var(--borde);border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,.06);padding:14px}
+.kpi{grid-column:span 3}
+.section{grid-column:span 12}
+.half{grid-column:span 6}
+.third{grid-column:span 4}
+.two-third{grid-column:span 8}
+@media(max-width:1000px){.kpi,.half,.third,.two-third{grid-column:span 6}}
+@media(max-width:640px){.kpi,.half,.third,.two-third{grid-column:span 12}}
+.kpi .label{font-size:12px;opacity:.85}
+.kpi .value{font-size:28px;font-weight:800;margin-top:6px;line-height:1.1}
+.kpi .note{font-size:12px;color:var(--muted);margin-top:6px}
+.section-title h2{margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.35px;color:var(--azul)}
+.small{font-size:12px;color:var(--muted)}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:separate;border-spacing:0;min-width:980px}
+th,td{padding:10px;border-bottom:1px solid var(--borde);text-align:left;font-size:13px;vertical-align:top}
+th{position:sticky;top:0;background:#fff;z-index:1;font-size:12px;text-transform:uppercase;letter-spacing:.25px;color:#3b3b3b}
+tr:hover td{background:#fafafa}
+.b{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid var(--borde)}
+.b-blue{background:rgba(46,117,182,.10);border-color:rgba(46,117,182,.35)}
+.b-green{background:rgba(46,125,50,.10);border-color:rgba(46,125,50,.35)}
+.b-yellow{background:rgba(255,192,0,.18);border-color:rgba(255,192,0,.55)}
+.b-red{background:rgba(192,0,0,.10);border-color:rgba(192,0,0,.30)}
+.b-orange{background:rgba(201,122,28,.12);border-color:rgba(201,122,28,.45)}
+.chart{width:100%;height:320px;border:1px dashed #eef1f3;border-radius:12px;padding:8px;background:linear-gradient(to bottom,#fff,#fcfdfe)}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px}
+.alert-list{display:grid;gap:8px}
+.alert-item{padding:10px 12px;border-radius:12px;border:1px solid var(--borde);background:#fff}
+.alert-item strong{display:block;margin-bottom:4px}
+.note-box{border-left:4px solid var(--azul2);padding:10px 12px;background:#f8fbff;border-radius:8px;color:#31404c;font-size:13px}
+footer{text-align:center;padding:14px;color:#fff;background:var(--azul);font-size:13px;margin-top:12px}
+@media print{header,.toolbar,.nav,footer{display:none!important}body{background:#fff}.card{box-shadow:none}table{min-width:unset}}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-row">
+    <div>
+      <h1>Dashboard financiero – Cuentas por pagar 2025</h1>
+      <div class="sub">Basado en el archivo XLS analizado | Hoja: LIQUIDACIONES EM</div>
+    </div>
+    <div class="nav">
+      <a href="#detalle">Detalle contractual</a>
+      <button onclick="window.print()">Imprimir PDF</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="top">
+    <span class="badge">Estructura visual adaptada del dashboard de referencia</span>
+    <span class="badge">Sin datos inventados: solo resultados del XLS</span>
+  </div>
+
+  <div class="toolbar">
+    <div class="pills" id="supervisorPills"></div>
+    <div class="search">
+      <input id="q" type="text" placeholder="Buscar contrato, objeto, supervisor o unidad..." />
+      <select id="sort">
+        <option value="cxp_desc">Orden: CxP (alto→bajo)</option>
+        <option value="valor_desc">Orden: valor contrato (alto→bajo)</option>
+        <option value="pct_desc">Orden: % CxP (alto→bajo)</option>
+        <option value="fecha_asc">Orden: fecha plazo (antiguo→reciente)</option>
+        <option value="contrato_asc">Orden: contrato (A→Z)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid" id="kpiGrid"></div>
+
+  <div class="grid">
+    <div class="card two-third">
+      <div class="section-title">
+        <h2>Comparativo por contrato</h2>
+        <div class="small">Valor del contrato vs. cuentas por pagar</div>
+      </div>
+      <svg id="barChart" class="chart" viewBox="0 0 860 320" preserveAspectRatio="none" aria-label="Gráfico de barras"></svg>
+      <div class="legend">
+        <span><i style="background:rgba(46,117,182,.75)"></i> Valor del contrato</span>
+        <span><i style="background:rgba(255,192,0,.85)"></i> Cuentas por pagar</span>
+      </div>
+    </div>
+
+    <div class="card third">
+      <div class="section-title">
+        <h2>Participación de CxP</h2>
+        <div class="small">Distribución del total de cuentas por pagar</div>
+      </div>
+      <svg id="donutChart" class="chart" viewBox="0 0 360 320" preserveAspectRatio="xMidYMid meet" aria-label="Gráfico de dona"></svg>
+      <div id="donutLegend" class="legend"></div>
+    </div>
+
+    <div class="card half">
+      <div class="section-title">
+        <h2>Vencimientos / plazo de ejecución</h2>
+        <div class="small">Fechas registradas en el XLS</div>
+      </div>
+      <svg id="timelineChart" class="chart" viewBox="0 0 560 320" preserveAspectRatio="none" aria-label="Línea de tiempo"></svg>
+    </div>
+
+    <div class="card half">
+      <div class="section-title">
+        <h2>Alertas y calidad de datos</h2>
+        <div class="small">Hallazgos derivados del archivo</div>
+      </div>
+      <div id="alerts" class="alert-list"></div>
+    </div>
+
+    <div class="card section" id="detalle">
+      <div class="section-title">
+        <h2>Detalle contractual</h2>
+        <div class="small" id="summary"></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Contrato</th>
+              <th>Supervisor</th>
+              <th>Objeto</th>
+              <th>Plazo</th>
+              <th>Unidad</th>
+              <th>Valor contrato</th>
+              <th>Cuentas por pagar</th>
+              <th>Saldo sin CxP</th>
+              <th>% CxP</th>
+              <th>Estado analítico</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card section">
+      <div class="section-title">
+        <h2>Lectura ejecutiva</h2>
+        <div class="small">Interpretación breve para toma de decisiones</div>
+      </div>
+      <div class="note-box" id="insightBox"></div>
+    </div>
+  </div>
+</div>
+
+<footer>Dashboard HTML generado a partir del XLS: CONSOLIDADO CTAS X PAGAR EM.xlsx</footer>
+
+<script>
+// =========================
+// Datos reales tomados del XLS analizado
+// =========================
+const data = [
+  {
+    no: 1,
+    contrato: "113-CENACAVIACIÓN-2025",
+    supervisor: "MY. PUERTO COMBITA CAMILO",
+    objeto: "ADQUISICIÓN DE OPERADOR LOGÍSTICO PARA EL BIENESTAR DEL PERSONAL UNIFORMADO Y SUS FAMILIAS",
+    plazo: "2025-12-15",
+    unidad: "BRIAV32",
+    valorContrato: 650000000.00,
+    cuentasPorPagar: 254018935.48
+  },
+  {
+    no: 3,
+    contrato: "193-CENACAVIACIÓN-2025",
+    supervisor: "CT. DUARTE PINTO JAIME",
+    objeto: "SERVICIOS DE MANTENIMIENTO PREVENTIVO Y CORRECTIVO A TODO COSTO SISTEMA DE AIRE ACONDICIONADO CENTRAL CHILLER",
+    plazo: "2025-12-10",
+    unidad: "BRIAV32",
+    valorContrato: 378018899.53,
+    cuentasPorPagar: 378018899.53
+  },
+  {
+    no: 4,
+    contrato: "194-CENACAVIACIÓN-2025",
+    supervisor: "CT. JORGE RODRIGUEZ NAVARRO",
+    objeto: "MANTENIMIENTO DE LAS INSTALACIONES DE LAS OFICINAS DEL ESTADO MAYOR Y DEL HANGAR MI17",
+    plazo: "2025-12-09",
+    unidad: "BRIAV32",
+    valorContrato: 159558826.69,
+    cuentasPorPagar: 159558826.69
+  }
+];
+
+// =========================
+// Configuración de vista/filtros
+// =========================
+const supervisors = ["Todos", ...new Set(data.map(d => d.supervisor))];
+let selectedSupervisor = "Todos";
+
+const money = n => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 2 }).format(n);
+const number = n => new Intl.NumberFormat("es-CO").format(n);
+const pct = n => `${n.toFixed(1)}%`;
+const shortDate = iso => new Date(iso + "T00:00:00").toLocaleDateString("es-CO");
+
+function enrich(rows){
+  return rows.map(r => ({
+    ...r,
+    saldoSinCxp: r.valorContrato - r.cuentasPorPagar,
+    porcentajeCxp: r.valorContrato ? (r.cuentasPorPagar / r.valorContrato) * 100 : 0
+  }));
+}
+
+function badgeEstado(row){
+  if (Math.abs(row.porcentajeCxp - 100) < 0.001) return '<span class="b b-red">100% en CxP</span>';
+  if (row.porcentajeCxp >= 50) return '<span class="b b-yellow">CxP alta</span>';
+  return '<span class="b b-green">CxP parcial</span>';
+}
+
+function renderSupervisorPills(){
+  const holder = document.getElementById("supervisorPills");
+  holder.innerHTML = "";
+  supervisors.forEach(s => {
+    const el = document.createElement("div");
+    el.className = "pill" + (selectedSupervisor === s ? " active" : "");
+    el.textContent = s === "Todos" ? "Todos los supervisores" : s;
+    el.onclick = () => { selectedSupervisor = s; render(); };
+    holder.appendChild(el);
+  });
+}
+
+function applyFilters(){
+  const q = (document.getElementById("q").value || "").toLowerCase().trim();
+  let out = enrich(data);
+
+  if (selectedSupervisor !== "Todos") out = out.filter(x => x.supervisor === selectedSupervisor);
+
+  if (q){
+    out = out.filter(x => (`${x.contrato} ${x.supervisor} ${x.objeto} ${x.unidad}`).toLowerCase().includes(q));
+  }
+
+  const sort = document.getElementById("sort").value;
+  const by = {
+    cxp_desc: (a,b) => b.cuentasPorPagar - a.cuentasPorPagar,
+    valor_desc: (a,b) => b.valorContrato - a.valorContrato,
+    pct_desc: (a,b) => b.porcentajeCxp - a.porcentajeCxp,
+    fecha_asc: (a,b) => new Date(a.plazo) - new Date(b.plazo),
+    contrato_asc: (a,b) => a.contrato.localeCompare(b.contrato)
+  }[sort];
+  out.sort(by);
+  return out;
+}
+
+function renderKpis(rows){
+  const totalValor = rows.reduce((a,b) => a + b.valorContrato, 0);
+  const totalCxp = rows.reduce((a,b) => a + b.cuentasPorPagar, 0);
+  const totalSaldo = rows.reduce((a,b) => a + b.saldoSinCxp, 0);
+  const pctGlobal = totalValor ? (totalCxp / totalValor) * 100 : 0;
+  const fullCxp = rows.filter(r => Math.abs(r.porcentajeCxp - 100) < 0.001).length;
+  const units = new Set(rows.map(r => r.unidad)).size;
+
+  const cards = [
+    { label: "Contratos visibles", value: rows.length, note: `Filtro actual: ${selectedSupervisor}` },
+    { label: "Valor total contratado", value: money(totalValor), note: "Suma de la columna VALOR DEL CONTRATO" },
+    { label: "Total cuentas por pagar", value: money(totalCxp), note: "Suma de la columna CUENTAS POR PAGAR" },
+    { label: "Saldo sin CxP", value: money(totalSaldo), note: "Diferencia entre valor total y CxP" },
+    { label: "% global en CxP", value: pct(pctGlobal), note: "CxP / valor contratado" },
+    { label: "Contratos al 100% en CxP", value: fullCxp, note: `Unidades visibles: ${units}` }
+  ];
+
+  const grid = document.getElementById("kpiGrid");
+  grid.innerHTML = "";
+  cards.forEach(k => {
+    const card = document.createElement("div");
+    card.className = "card kpi";
+    card.innerHTML = `<div class="label">${k.label}</div><div class="value">${k.value}</div><div class="note">${k.note}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+function renderRows(rows){
+  const tbody = document.getElementById("rows");
+  tbody.innerHTML = "";
+  rows.forEach(r => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r.no}</td>
+      <td><strong>${r.contrato}</strong></td>
+      <td>${r.supervisor}</td>
+      <td>${r.objeto}</td>
+      <td>${shortDate(r.plazo)}</td>
+      <td>${r.unidad}</td>
+      <td>${money(r.valorContrato)}</td>
+      <td>${money(r.cuentasPorPagar)}</td>
+      <td>${money(r.saldoSinCxp)}</td>
+      <td>${pct(r.porcentajeCxp)}</td>
+      <td>${badgeEstado(r)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("summary").textContent = `Mostrando ${rows.length} de ${data.length} contratos | Hoja fuente: LIQUIDACIONES EM`;
+}
+
+// =========================
+// Gráfico 1: barras comparativas en SVG
+// =========================
+function renderBarChart(rows){
+  const svg = document.getElementById("barChart");
+  const W = 860, H = 320, left = 56, right = 20, top = 20, bottom = 54;
+  const innerW = W - left - right, innerH = H - top - bottom;
+  const max = Math.max(...rows.flatMap(r => [r.valorContrato, r.cuentasPorPagar]), 1);
+  const groupW = innerW / Math.max(rows.length, 1);
+  let out = [`<rect x="0" y="0" width="${W}" height="${H}" fill="white" rx="12"/>`];
+
+  // grid + axis labels
+  for(let i=0;i<=4;i++){
+    const y = top + (innerH/4)*i;
+    const val = max * (1 - i/4);
+    out.push(`<line x1="${left}" y1="${y}" x2="${W-right}" y2="${y}" stroke="#edf0f2"/>`);
+    out.push(`<text x="${left-8}" y="${y+4}" text-anchor="end" font-size="11" fill="#66727e">${(val/1e6).toFixed(0)} M</text>`);
+  }
+  out.push(`<line x1="${left}" y1="${H-bottom}" x2="${W-right}" y2="${H-bottom}" stroke="#cdd5dc"/>`);
+
+  rows.forEach((r, i) => {
+    const baseX = left + i*groupW + groupW*0.14;
+    const bw = Math.min(46, groupW*0.24);
+    const gap = bw*0.35;
+    const vh1 = (r.valorContrato/max)*innerH;
+    const vh2 = (r.cuentasPorPagar/max)*innerH;
+    const x1 = baseX + groupW*0.10;
+    const x2 = x1 + bw + gap;
+    const y1 = H-bottom-vh1;
+    const y2 = H-bottom-vh2;
+    out.push(`<rect x="${x1}" y="${y1}" width="${bw}" height="${vh1}" fill="rgba(46,117,182,.75)" rx="6"/>`);
+    out.push(`<rect x="${x2}" y="${y2}" width="${bw}" height="${vh2}" fill="rgba(255,192,0,.90)" rx="6"/>`);
+    out.push(`<text x="${baseX + groupW*0.40}" y="${H-bottom+16}" text-anchor="middle" font-size="11" fill="#55616c">${r.contrato.split('-')[0]}</text>`);
+    out.push(`<text x="${baseX + groupW*0.40}" y="${H-bottom+30}" text-anchor="middle" font-size="10" fill="#7a8793">${pct(r.porcentajeCxp)}</text>`);
+  });
+
+  svg.innerHTML = out.join("");
+}
+
+// =========================
+// Gráfico 2: dona SVG
+// =========================
+function polarToCartesian(cx, cy, r, angle){
+  const rad = (angle - 90) * Math.PI / 180.0;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+function describeArc(cx, cy, r, startAngle, endAngle){
+  const start = polarToCartesian(cx, cy, r, endAngle);
+  const end = polarToCartesian(cx, cy, r, startAngle);
+  const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
+  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
+}
+function renderDonut(rows){
+  const total = rows.reduce((a,b)=>a+b.cuentasPorPagar,0) || 1;
+  const colors = ["#2e75b6", "#ffc000", "#c97a1c", "#2e7d32"];
+  const cx = 180, cy = 150, r = 92;
+  let start = 0;
+  let svg = [`<rect x="0" y="0" width="360" height="320" fill="white" rx="12"/>`];
+  rows.forEach((rItem, i) => {
+    const sweep = (rItem.cuentasPorPagar / total) * 360;
+    const end = start + sweep;
+    svg.push(`<path d="${describeArc(cx, cy, r, start, end)}" fill="none" stroke="${colors[i%colors.length]}" stroke-width="36" stroke-linecap="butt"/>`);
+    start = end;
+  });
+  svg.push(`<circle cx="${cx}" cy="${cy}" r="58" fill="white"/>`);
+  svg.push(`<text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="13" fill="#61707b">Total CxP</text>`);
+  svg.push(`<text x="${cx}" y="${cy+18}" text-anchor="middle" font-size="16" font-weight="700" fill="#22303a">${(total/1e6).toFixed(1)} M</text>`);
+  document.getElementById("donutChart").innerHTML = svg.join("");
+  document.getElementById("donutLegend").innerHTML = rows.map((rItem, i) => `
+    <span><i style="background:${colors[i%colors.length]}"></i>${rItem.contrato.split('-')[0]} · ${pct((rItem.cuentasPorPagar/total)*100)}</span>
+  `).join("");
+}
+
+// =========================
+// Gráfico 3: línea de tiempo / hitos
+// =========================
+function renderTimeline(rows){
+  const svg = document.getElementById("timelineChart");
+  const W = 560, H = 320, left = 50, right = 24, top = 30, bottom = 56;
+  const innerW = W-left-right;
+  const ordered = [...rows].sort((a,b)=>new Date(a.plazo)-new Date(b.plazo));
+  const dates = ordered.map(r => new Date(r.plazo).getTime());
+  const min = Math.min(...dates), max = Math.max(...dates);
+  const y = 145;
+  const points = ordered.map(r => {
+    const t = new Date(r.plazo).getTime();
+    const x = left + (max === min ? innerW/2 : ((t-min)/(max-min))*innerW);
+    return { ...r, x };
+  });
+  let out = [`<rect x="0" y="0" width="${W}" height="${H}" fill="white" rx="12"/>`];
+  out.push(`<line x1="${left}" y1="${y}" x2="${W-right}" y2="${y}" stroke="#cad3da" stroke-width="3"/>`);
+  points.forEach((p, idx) => {
+    out.push(`<circle cx="${p.x}" cy="${y}" r="8" fill="#2e75b6"/>`);
+    out.push(`<line x1="${p.x}" y1="${y-8}" x2="${p.x}" y2="${70 + idx*44}" stroke="#d9e3ea"/>`);
+    out.push(`<text x="${p.x}" y="${58 + idx*44}" text-anchor="middle" font-size="11" fill="#44525d">${p.contrato.split('-')[0]}</text>`);
+    out.push(`<text x="${p.x}" y="${72 + idx*44}" text-anchor="middle" font-size="10" fill="#71808c">${shortDate(p.plazo)}</text>`);
+    out.push(`<text x="${p.x}" y="${86 + idx*44}" text-anchor="middle" font-size="10" fill="#71808c">CxP ${pct(p.porcentajeCxp)}</text>`);
+  });
+  svg.innerHTML = out.join("");
+}
+
+function buildAlerts(rows){
+  const alerts = [];
+  const fullCxp = rows.filter(r => Math.abs(r.porcentajeCxp - 100) < 0.001);
+  fullCxp.forEach(r => alerts.push({
+    title: `${r.contrato} con 100% en cuentas por pagar`,
+    body: `El valor contractual y la cuenta por pagar coinciden en ${money(r.cuentasPorPagar)}.`,
+    cls: "b b-red"
+  }));
+
+  const partial = rows.find(r => r.porcentajeCxp < 100);
+  if (partial) alerts.push({
+    title: `${partial.contrato} presenta CxP parcial`,
+    body: `Tiene ${pct(partial.porcentajeCxp)} en CxP y un saldo sin CxP de ${money(partial.saldoSinCxp)}.`,
+    cls: "b b-yellow"
+  });
+
+  const sortedNos = data.map(d => d.no).sort((a,b)=>a-b);
+  const expected = [1,2,3,4].filter(n => n <= Math.max(...sortedNos));
+  const missing = expected.filter(n => !sortedNos.includes(n));
+  if (missing.length) alerts.push({
+    title: `Inconsistencia en consecutivo`,
+    body: `La columna No. omite el consecutivo ${missing.join(", ")}.`,
+    cls: "b b-orange"
+  });
+
+  const units = [...new Set(data.map(d => d.unidad))];
+  if (units.length === 1) alerts.push({
+    title: `Concentración total en una sola unidad`,
+    body: `Todos los registros visibles pertenecen a ${units[0]}.`,
+    cls: "b b-blue"
+  });
+
+  const box = document.getElementById("alerts");
+  box.innerHTML = alerts.map(a => `
+    <div class="alert-item">
+      <span class="${a.cls}">${a.title}</span>
+      <strong></strong>
+      <div>${a.body}</div>
+    </div>
+  `).join("");
+}
+
+function renderInsights(rows){
+  const totalValor = rows.reduce((a,b) => a + b.valorContrato, 0);
+  const totalCxp = rows.reduce((a,b) => a + b.cuentasPorPagar, 0);
+  const pctGlobal = totalValor ? (totalCxp / totalValor) * 100 : 0;
+  const highest = [...rows].sort((a,b)=>b.valorContrato-a.valorContrato)[0];
+  const highestCxp = [...rows].sort((a,b)=>b.cuentasPorPagar-a.cuentasPorPagar)[0];
+
+  document.getElementById("insightBox").innerHTML = `
+    El archivo muestra <strong>${rows.length} contratos</strong> en la hoja <strong>LIQUIDACIONES EM</strong>, todos asociados a la unidad <strong>${rows[0]?.unidad || "-"}</strong>.
+    El valor total contratado visible es <strong>${money(totalValor)}</strong> y las cuentas por pagar suman <strong>${money(totalCxp)}</strong>, equivalente a <strong>${pct(pctGlobal)}</strong> del total.
+    El contrato de mayor valor es <strong>${highest?.contrato || "-"}</strong> con <strong>${money(highest?.valorContrato || 0)}</strong>, mientras que el mayor monto individual en cuentas por pagar corresponde a <strong>${highestCxp?.contrato || "-"}</strong> con <strong>${money(highestCxp?.cuentasPorPagar || 0)}</strong>.
+    El tablero deja ver dos focos de revisión: <strong>contratos al 100% en CxP</strong> y <strong>consistencia del consecutivo</strong> del registro.`;
+}
+
+function render(){
+  renderSupervisorPills();
+  const rows = applyFilters();
+  renderKpis(rows);
+  renderRows(rows);
+  renderBarChart(rows);
+  renderDonut(rows);
+  renderTimeline(rows);
+  buildAlerts(rows);
+  renderInsights(rows);
+}
+
+// Eventos de interacción
+// =========================
+document.getElementById("q").addEventListener("input", render);
+document.getElementById("sort").addEventListener("change", render);
+
+render();
+</script>
+</body>
+</html>
